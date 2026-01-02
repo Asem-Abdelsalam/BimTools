@@ -20,7 +20,7 @@ namespace BimTools.RhinoIntegration
             attr.UserData.Add(new BimUserData
             {
                 ElementId = element.Id,
-                Category = element.Category
+                Category = element.Category.ToString()
             });
 
             return doc.Objects.AddBrep(brep, attr);

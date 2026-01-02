@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace BimTools.Geometry
 {
+    /// <summary>
+    /// /contains the logic that converts bim element data to 3d geometry
+    /// </summary>
     public static class WallGeometry
     {
         public static Brep Build(Wall wall)

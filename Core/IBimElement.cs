@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 
 namespace BimTools.Core
 {
-    // Base for all Bim elements 
+    /// public interface for all Bim elements 
     public interface IBimElement
     {
-        Guid Id { get; }                                    // unique ID
-        string Category { get; }                            // categories like walls, doors,..etc
-        Brep GenerateGeometry();                            // Create A Brep object representing the element's geometry in 3D space
+        Guid Id { get; }                     // unique ID
+        BimCategory Category { get; }             // categories like walls, doors,..etc "ex: builtincategories in revit"
+        Brep GenerateGeometry();             // Create A geometric representation
     }
 }
+// The category determines what an element can do.
+// For example, only elements in certain categories
+// can host others (e.g., Walls can host Doors) or be included in specific schedules. 

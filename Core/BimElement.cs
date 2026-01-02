@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace BimTools.Core
 {
+    /// the base class implementing IBimElement
     public abstract class BimElement : IBimElement
     {
         public Guid Id { get; } = Guid.NewGuid();
-        public abstract string Category { get; }
+        public abstract BimCategory Category { get; }
         public abstract Brep GenerateGeometry();
     }
 }

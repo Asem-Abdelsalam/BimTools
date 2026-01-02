@@ -12,6 +12,10 @@ using Rhino.Input.Custom;
 
 namespace BimTools.Commands
 {
+    /// <summary>
+    /// the rhino command logic (asks user to pick points, creates 
+    /// a wall object then adds it to the document
+    /// </summary>
     public class BimWallCommand : Command
     {
 
@@ -22,7 +26,7 @@ namespace BimTools.Commands
             var points = new List<Point3d>();
 
             // ─────────────────────────────────────────────
-            // 1️⃣ Pick first point
+            // 1️ Pick first point
             // ─────────────────────────────────────────────
             var gp = new GetPoint();
             gp.SetCommandPrompt("Start wall");
@@ -39,7 +43,7 @@ namespace BimTools.Commands
             };
 
             // ─────────────────────────────────────────────
-            // 2️⃣ Repeated point picking (polyline)
+            // 2️ Repeated point picking (polyline)
             // ─────────────────────────────────────────────
             while (true)
             {
@@ -87,7 +91,7 @@ namespace BimTools.Commands
                 return Result.Cancel;
 
             // ─────────────────────────────────────────────
-            // 3️⃣ Create final wall
+            // 3️ Create final wall
             // ─────────────────────────────────────────────
             var polyline = new Polyline(points);
             var axis = polyline.ToPolylineCurve();
