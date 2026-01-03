@@ -1,6 +1,9 @@
 # BimTools
 
-A simple BIM system for Rhinoceros that lets you create and manage building elements (like walls) with structured data.
+A simple BIM system for Rhinoceros that creates and manages building elements (like walls, floors, columns,..) using structured data.
+
+The main purpose of creating this project is to explore, through hands-on experimentation how BIM logic operates within BIM software like Revit,
+and to apply that logic in giving discrete geometric representations meaningful context inside Rhino.
 
 ### Requirements
 
