@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BimTools.Core
+namespace BimTools.Core.Element
 {
     /// <summary>
     /// Built-in Categories for Bim elements

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BimTools.Core
+namespace BimTools.Core.Element
 {
     /// the base class implementing IBimElement
     public abstract class BimElement : IBimElement

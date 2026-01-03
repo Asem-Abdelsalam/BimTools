@@ -25,4 +25,8 @@
     <PackageReference Include="RhinoCommon" Version="8.0.23304.9001" ExcludeAssets="runtime" />
   </ItemGroup>
   
+  <ItemGroup>
+    <Folder Include="Core\Parameter\" />
+  </ItemGroup>
+  
 </Project>

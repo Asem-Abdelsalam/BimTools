@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BimTools.Core
+namespace BimTools.Core.Element
 {
     /// public interface for all Bim elements 
     public interface IBimElement
     {
         Guid Id { get; }                     // unique ID
-        BimCategory Category { get; }             // categories like walls, doors,..etc "ex: builtincategories in revit"
+        BimCategory Category { get; }             // from BimCategory Enum 
         Brep GenerateGeometry();             // Create A geometric representation
+        
     }
 }
 // The category determines what an element can do.

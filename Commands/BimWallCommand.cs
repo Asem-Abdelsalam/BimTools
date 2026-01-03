@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using BimTools.Core;
 using BimTools.Elements;
 using BimTools.RhinoIntegration;
@@ -23,82 +24,44 @@ namespace BimTools.Commands
 
         protected override Result RunCommand(RhinoDoc doc, RunMode mode)
         {
-            var points = new List<Point3d>();
 
-            // ─────────────────────────────────────────────
-            // 1️ Pick first point
-            // ─────────────────────────────────────────────
+            // 1️ Pick first point 
             var gp = new GetPoint();
             gp.SetCommandPrompt("Start wall");
             if (gp.Get() != GetResult.Point)
                 return Result.Cancel;
 
-            points.Add(gp.Point());
+            var lastpoint = gp.Point();
 
-            // Preview wall
-            var previewWall = new Wall
+            // 2 Pick Second point, attach dynamic draw to secondpoint 
+            var gpSecond = new GetPoint();
+            gpSecond.SetCommandPrompt("Select next wall position");
+            gpSecond.SetBasePoint(lastpoint, true);
+
+            gpSecond.DynamicDraw += (sender, e) =>
             {
-                Height = 3.0,
-                Thickness = 0.2
-            };
-
-            // ─────────────────────────────────────────────
-            // 2️ Repeated point picking (polyline)
-            // ─────────────────────────────────────────────
-            while (true)
-            {
-                var gpNext = new GetPoint();
-                gpNext.SetCommandPrompt("Next point (Enter to finish)");
-                gpNext.SetBasePoint(points[points.Count - 1], true);
-
-                gpNext.DynamicDraw += (sender, e) =>
+                var previewWall = new Wall
                 {
-                    if (points.Count < 1) return;
-
-                    var tempPts = new List<Point3d>(points)
-                    {
-                        e.CurrentPoint
-                    };
-
-                    var pl = new Polyline(tempPts);
-                    if (!pl.IsValid || pl.Count < 2)
-                        return;
-
-                    previewWall.Axis = pl.ToPolylineCurve();
-
-                    var brep = previewWall.GenerateGeometry();
-                    if (brep == null) return;
-
-                    e.Display.DrawBrepWires(brep, System.Drawing.Color.Black);
+                    Height = 3.0,
+                    Thickness = 0.2,
+                    Axis = new Line(lastpoint, e.CurrentPoint).ToNurbsCurve()
                 };
 
-                var res = gpNext.Get();
+                var brep = previewWall.GenerateGeometry();
+                if (brep == null) return;
 
-                if (res == GetResult.Point)
-                {
-                    points.Add(gpNext.Point());
-                    continue;
-                }
+                e.Display.DrawBrepWires(brep, Color.Black);
+            };
 
-                if (res == GetResult.Nothing) // Enter pressed
-                    break;
-
-                return Result.Cancel;
-            }
-
-            // Need at least 2 points
-            if (points.Count < 2)
+            if (gpSecond.Get() != GetResult.Point)
                 return Result.Cancel;
 
-            // ─────────────────────────────────────────────
-            // 3️ Create final wall
-            // ─────────────────────────────────────────────
-            var polyline = new Polyline(points);
-            var axis = polyline.ToPolylineCurve();
+            var currentPoint = gpSecond.Point();
 
+            // 3 Create and add wall
             var wall = new Wall
             {
-                Axis = axis,
+                Axis = new Line(lastpoint, currentPoint).ToNurbsCurve(),
                 Height = 3.0,
                 Thickness = 0.2
             };
@@ -106,6 +69,56 @@ namespace BimTools.Commands
             BimDatabase.Add(wall);
             RhinoElementBinder.Add(doc, wall);
 
+            lastpoint = currentPoint;
+
+            // 4 repeat point picking for additional wall segments
+            while (true)
+            {
+                var gpNext = new GetPoint();
+                gpNext.SetCommandPrompt("Select next wall position");
+                gpNext.SetBasePoint(lastpoint, true);
+
+                gpNext.DynamicDraw += (sender, e) =>
+                {
+                    var previewWall = new Wall
+                    {
+                        Height = 3.0,
+                        Thickness = 0.2,
+                        Axis = new Line(lastpoint, e.CurrentPoint).ToNurbsCurve()
+                    };
+
+                    var brep = previewWall.GenerateGeometry();
+                    if (brep == null) return;
+
+                    e.Display.DrawBrepWires(brep, Color.Black);
+                };
+                var res = gpNext.Get();
+
+                if (res == GetResult.Point)
+                {
+                    currentPoint = gpNext.Point();
+
+                    // Create add wall for this segment
+                    var nextWall = new Wall
+                    {
+                        Axis = new Line(lastpoint, currentPoint).ToNurbsCurve(),
+                        Height = 3.0,
+                        Thickness = 0.2
+                    };
+
+                    BimDatabase.Add(nextWall);
+                    RhinoElementBinder.Add(doc, nextWall);
+
+                    lastpoint = currentPoint;
+                    continue;
+                }
+
+                if (res == GetResult.Nothing) // enter pressed
+                    break;
+                return Result.Cancel;
+            }
+
+            // end command
             doc.Views.Redraw();
             return Result.Success;
         }
